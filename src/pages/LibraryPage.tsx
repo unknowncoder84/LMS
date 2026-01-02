@@ -77,13 +77,13 @@ const LibraryPage: React.FC = () => {
       return;
     }
 
-    // Upload file to Dropbox if selected
+    // Upload file to Supabase Storage if selected
     if (selectedFile && itemType === 'File') {
       setUploading(true);
       try {
-        await dropbox.uploadFile(selectedFile, `library-${Date.now()}`);
+        await uploadFile(selectedFile, `library-${Date.now()}`);
       } catch (err) {
-        console.error('Dropbox upload error:', err);
+        console.error('Storage upload error:', err);
         setError('File upload failed. Item will be added without file.');
       } finally {
         setUploading(false);
@@ -139,8 +139,7 @@ const LibraryPage: React.FC = () => {
     if (!item.dropboxPath) return;
     
     try {
-      const blob = await dropbox.downloadFile(item.dropboxPath);
-      downloadBlob(blob, item.name);
+      downloadFile(item.dropboxPath, item.name);
     } catch (err) {
       console.error('Download error:', err);
       alert('Failed to download file');

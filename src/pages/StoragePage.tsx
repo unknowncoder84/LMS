@@ -55,10 +55,17 @@ const StoragePage: React.FC = () => {
     if (selectedFile && (itemType === 'File' || itemType === 'Document')) {
       setUploading(true);
       try {
-        const result = await dropbox.uploadFile(selectedFile, `storage-${Date.now()}`);
-        dropboxPath = result.path;
-        try { const linkResult = await dropbox.getShareableLink(result.path); dropboxLink = linkResult.url; } catch { console.log('Could not get shareable link'); }
-      } catch (err) { console.error('Dropbox upload error:', err); setError('File upload failed.'); setUploading(false); return; } finally { setUploading(false); }
+        const result = await uploadFile(selectedFile, `storage-${Date.now()}`);
+        dropboxPath = result.path || '';
+        dropboxLink = result.url || '';
+      } catch (err) { 
+        console.error('Storage upload error:', err); 
+        setError('File upload failed.'); 
+        setUploading(false); 
+        return; 
+      } finally { 
+        setUploading(false); 
+      }
     }
 
     // Use DataContext to add storage item
@@ -106,7 +113,12 @@ const StoragePage: React.FC = () => {
 
   const handleDownload = async (item: StorageItem) => {
     if (!item.dropboxPath) return;
-    try { const blob = await dropbox.downloadFile(item.dropboxPath); downloadBlob(blob, item.name); } catch (err) { console.error('Download error:', err); alert('Failed to download file'); }
+    try { 
+      downloadFile(item.dropboxPath, item.name); 
+    } catch (err) { 
+      console.error('Download error:', err); 
+      alert('Failed to download file'); 
+    }
   };
 
   const filteredItems = storageItems.filter((item) => {
